@@ -1,0 +1,139 @@
+---
+title: "project"
+lang: es
+format:
+  html:
+    toc: true
+editor: source
+execute:
+  echo: false
+---
+
+```{r, echo=FALSE}
+#| label: load_data
+pacman::p_load(dplyr,
+               tidyr,
+               ggplot2,
+               gt,
+               readr,
+               readxl,
+               purrr)
+
+oldw <- getOption("warn")
+options(warn = -1)
+
+### Convocatorias
+
+data_path <- "bd_source/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*xlsx$") # get file names
+dt_convocatorias <- files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_excel(file.path(data_path, .))) %>%
+  reduce(rbind)
+
+files_list <- files
+
+### Participantes
+
+data_path <- "bd_source/participantes/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*csv$") # get file names
+dt_participantes <- files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_csv(file.path(data_path, .))) %>%
+  reduce(rbind)
+
+files_list <- files_list |>
+  append(files)
+
+data_path <- "bd_source/participantes/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*xlsx$") # get file names
+dt_participantes <- dt_participantes |>
+  rbind(files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_excel(file.path(data_path, .))) %>%
+  reduce(rbind))
+
+files_list <- files_list |>
+  append(files)
+
+### Postores
+
+data_path <- "bd_source/postores/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*csv$") # get file names
+dt_postores <- files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_csv(file.path(data_path, .))) %>%
+  reduce(rbind)
+
+files_list <- files_list |>
+  append(files)
+
+data_path <- "bd_source/postores/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*xlsx$") # get file names
+dt_postores <- dt_postores |>
+  rbind(files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_excel(file.path(data_path, .))) %>%
+  reduce(rbind))
+
+files_list <- files_list |>
+  append(files)
+
+
+### Contratos
+
+data_path <- "bd_source/contratos/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*csv$") # get file names
+dt_contratos <- files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_csv(file.path(data_path, .))) %>%
+  reduce(rbind)
+
+files_list <- files_list |>
+  append(files)
+
+data_path <- "bd_source/contratos/"
+files <- dir(here::here(data_path), pattern = "^[a-zA-z].*xlsx$") # get file names
+dt_contratos_2 <- files %>%
+  # read in all the files, appending the path before the filename
+  map(~ read_excel(file.path(data_path, .))) %>%
+  reduce(rbind)
+
+files_list <- files_list |>
+  append(files)
+
+dt_contratos <- dt_contratos |>
+  mutate(FECHASUSCRIPCIONCONTRATO = as.Date(FECHASUSCRIPCIONCONTRATO, "%d/%m/%y"))
+
+dt_contratos_2 <- dt_contratos_2 |>
+  mutate(FECHASUSCRIPCIONCONTRATO = as.Date(FECHASUSCRIPCIONCONTRATO, "%Y-%m-%d %H:%M:%S"))
+
+dt_contratos <- dt_contratos |>
+rbind(dt_contratos_2)
+
+options(warn = oldw)
+# dt |>
+#   rename (fnac = `Fecha de Nacimiento2`,
+#           sexo = Sexo...13) %>%
+#   mutate(edad = 2023 - as.integer(format(.$fnac,"%Y"))) |>
+#   mutate(grupo_edad = case_when(edad < 5 ~ 1,
+#                                 edad >=5 & edad <12 ~ 2,
+#                                 edad >=12 & edad <18 ~ 3,
+#                                 edad >=18 & edad <45 ~ 4,
+#                                 edad >=45 & edad <60 ~ 5,
+#                                 edad >=60 ~ 6),n = 1) %>%
+#   mutate(grupo_edad = factor(.$grupo_edad, levels = c(1,2,3,4,5,6), labels = c("0 a 4 años","5 a 11 años","12 a 18 años","19 a 44 años","45 a 59 años","60 años a más")),
+#          sexo = factor(.$sexo, levels = c("M","F"), labels = c("Hombre","Mujer"))) |>
+#   filter(!`N°` == 198) %>%  # se retira porque no quiso participar
+#   mutate(etnia = case_when(stringr::str_detect(.$`Pertenencia Etnica`,"^A[iy]mara") ~ "Aymara",
+#                            stringr::str_detect(.$`Pertenencia Etnica`,"^Mestiz") ~ "Mestizo",
+#                            stringr::str_detect(.$`Pertenencia Etnica`,"^Quech") ~ "Quechua"))-> dt
+
+saveRDS(dt_contratos,file = "dt_contratos.Rds")
+saveRDS(dt_postores,file = "dt_postores.Rds")
+saveRDS(dt_convocatorias,file = "dt_convocatorias.Rds")
+saveRDS(dt_participantes,file = "dt_participantes.Rds")
+
+files_list
+
+```

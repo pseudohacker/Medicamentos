@@ -1,0 +1,140 @@
+---
+title: "project"
+lang: es
+editor: source
+format:
+  html:
+    toc: true
+editor: source
+execute:
+  echo: false
+---
+```{r, echo=FALSE}
+#| label: load_data
+pacman::p_load(dplyr,
+               tidyr,
+               ggplot2,
+               gt,
+               readr,
+               readxl,
+               purrr)
+
+oldw <- getOption("warn")
+options(warn = -1)
+```
+
+```{r}
+dt_contratos <- readRDS(file = "dt_contratos.Rds")
+dt_postores <- readRDS(file = "dt_postores.Rds")
+dt_convocatorias <- readRDS(file = "dt_convocatorias.Rds")
+dt_participantes <- readRDS(file = "dt_participantes.Rds")
+
+```
+
+You can add options to executable code like this
+
+```{r}
+
+test <- dt_contratos |>
+  filter(RUCENTIDAD == "20538298485" | RUCENTIDAD == "20505208626" | RUCENTIDAD == "20131257750" | RUCENTIDAD == "20514964778") |>
+  mutate(
+    # FECHASUSCRIPCIONCONTRATO = as.Date(FECHASUSCRIPCIONCONTRATO, "%d/%m/%y"),
+         MONTOCONTRATADOITEM = as.numeric(MONTOCONTRATADOITEM),
+         ANHO = format(FECHASUSCRIPCIONCONTRATO, "%Y")) |>
+  select(CODIGOCONVOCATORIA,
+         RUCENTIDAD,
+         ANHO,
+         starts_with("FECHA"),
+         MONTOCONTRATADOITEM,
+         # starts_with("MONTO"),
+         starts_with("ENTIDAD")) |>
+  aggregate(MONTOCONTRATADOITEM ~ RUCENTIDAD + CODIGOCONVOCATORIA + ANHO, sum)
+
+test_2 <- dt_contratos |>
+  filter(RUCENTIDAD == "20538298485" | RUCENTIDAD == "20505208626" | RUCENTIDAD == "20131257750" | RUCENTIDAD == "20514964778") |>
+  mutate(
+    # FECHASUSCRIPCIONCONTRATO = as.Date(FECHASUSCRIPCIONCONTRATO, "%d/%m/%y"),
+         MONTOCONTRATADOITEM = as.numeric(MONTOCONTRATADOITEM),
+         ANHO = format(FECHASUSCRIPCIONCONTRATO, "%Y")) |>
+  select(CODIGOCONVOCATORIA,
+         RUCENTIDAD,
+         ANHO,
+         starts_with("FECHA"),
+         MONTOCONTRATADOITEM,
+         # starts_with("MONTO"),
+         starts_with("ENTIDAD")) |>
+  aggregate(FECHASUSCRIPCIONCONTRATO ~ RUCENTIDAD + CODIGOCONVOCATORIA + ANHO, max)
+
+
+contratos_aco <- dt_contratos |>
+  filter(RUCENTIDAD == "20538298485" | RUCENTIDAD == "20505208626" | RUCENTIDAD == "20131257750" | RUCENTIDAD == "20514964778") |>
+  mutate(FECHASUSCRIPCIONCONTRATO = as.Date(FECHASUSCRIPCIONCONTRATO, "%d/%m/%y"),
+         MONTOCONTRATADOITEM = as.numeric(MONTOCONTRATADOITEM),
+         ANHO = format(FECHASUSCRIPCIONCONTRATO, "%Y")) |>
+  select(CODIGOCONVOCATORIA,
+         RUCENTIDAD,
+         ANHO,
+         # starts_with("FECHA"),
+         # starts_with("MONTO"),
+         starts_with("ENTIDAD")) |>
+  distinct(RUCENTIDAD, CODIGOCONVOCATORIA, ANHO)
+
+
+convocatorias_aco <- dt_convocatorias |>
+  mutate(FECHACONVOCATORIA = as.Date(FECHACONVOCATORIA),
+         ANHO = format(FECHACONVOCATORIA, "%Y")) |>
+  select(CODIGOCONVOCATORIA,
+         RUCENTIDAD,
+         ANHO,
+         starts_with("FECHA"),
+         # starts_with("MONTO"),
+         starts_with("ENTIDAD")) |>
+  distinct(RUCENTIDAD, CODIGOCONVOCATORIA, ANHO, .keep_all = TRUE)
+
+cenares <- left_join(contratos_aco, test) |>
+  left_join(test_2) |>
+  left_join(convocatorias_aco)
+
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+cenares |>
+  mutate(plazo = FECHASUSCRIPCIONCONTRATO - FECHACONVOCATORIA,
+         ANHO = as.factor(ANHO),
+         RUCENTIDAD = factor(RUCENTIDAD, labels = c("ESSALUD","SIS","INEN","CENARES"))) -> a
+
+
+
+a |>
+  filter(plazo >= 0) |>
+  ggplot(aes(x=plazo, y=MONTOCONTRATADOITEM, color=ANHO, shape = RUCENTIDAD)) +
+  geom_point()
+
+```
+
+```{r}
+a |>
+  filter(plazo >= 0) |>
+summarise(media = mean(plazo), n = n(), mediana = median(plazo))
+```
+
+```{r}
+a |>
+  # filter(MON) |>
+  ggplot(aes(MONTOCONTRATADOITEM)) +
+  geom_histogram()
+
+```
+
+```{r}
+a |>
+  # filter(plazo >= 0) |>
+summarise(media = mean(MONTOCONTRATADOITEM), n = n(), mediana = median(MONTOCONTRATADOITEM))
+```
+
+```{r}
+a |>
+  mutate(periodo_convocatoria = format(c))
+```
