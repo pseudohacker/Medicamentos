@@ -24,16 +24,26 @@ options(warn = -1)
 ```
 
 ```{r}
-dt_contratos <- readRDS(file = "dt_contratos.Rds")
-dt_postores <- readRDS(file = "dt_postores.Rds")
-dt_convocatorias <- readRDS(file = "dt_convocatorias.Rds")
-dt_participantes <- readRDS(file = "dt_participantes.Rds")
-
+dt_contratos <- readRDS(here("bd_source","dt_contratos.Rds"))
+dt_postores <- readRDS(here("bd_source","dt_postores.Rds"))
+dt_convocatorias <- readRDS(here("bd_source","dt_convocatorias.Rds"))
+dt_participantes <- readRDS(here("bd_source","dt_participantes.Rds"))
+dt_ejecutoras <- readRDS(here("bd_source","dt_ejecutoras.Rds"))
+dt_medicamentos <- readRDS(here("bd_source","dt_medicamentos.Rds"))
 ```
 
-You can add options to executable code like this
+
 
 ```{r}
+a <- unique(dt_ejecutoras$EJECUTORA_NOMBRE)
+View(as.data.frame(a))
+test <- dt_convocatorias |>
+  mutate(ENTIDAD_NORMAL = case_when(
+    ENTIDAD == "GOBIERNO REGIONAL DE SAN MARTIN SEDE CENTRAL" ~ "REGION SAN MARTIN-SEDE CENTRAL",
+    ENTIDAD == "FONDO INTANGIBLE SOLIDARIO DE SALUD" ~ "FONDO INTANGIBLE SOLIDARIO DE SALUD - FISSAL",
+    ENTIDAD == "CENTRO NACIONAL DE ABASTECIMIENTO DE RECURSOS ESTRATEGICOS EN SALUD" ~ "CENTRO NACIONAL DE ABASTECIMIENTOS DE RECURSOS ESTRATEGICOS DE SALUD",
+    ENTIDAD == "INSTITUTO NACIONAL DE SALUD MENTAL HONORIO DELGADO-HIDEYO NOGUCHI" ~ "INSTITUTO NACIONAL DE SALUD MENTAL",
+    .default = ENTIDAD))
 
 test <- dt_contratos |>
   filter(RUCENTIDAD == "20538298485" | RUCENTIDAD == "20505208626" | RUCENTIDAD == "20131257750" | RUCENTIDAD == "20514964778") |>
