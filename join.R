@@ -3,6 +3,7 @@
 by <- join_by(CODIGOCONVOCATORIA, NITEM == NUMITEM)
 results <- dt_conv_busq |>
   filter(GRUPO == "Medicamentos y productos farmacéuticos") |>
+  filter(str_detect(ITEMCUBSO, "VACUNA", negate = TRUE)) |>
   # filter(grupo_diabetes == 1 | grupo_oncologico != "Resto no oncológico") |>
   # filter(grupo_oncologico != "Resto no oncológico") |>
   filter(ULTIMO == "ULTIMO") |>
@@ -14,9 +15,14 @@ results <- dt_conv_busq |>
   mutate(ENTIDAD_COMPRA = case_when(str_detect(ENTIDAD, "CENTRO NACIONAL DE ABASTECIMIENTO") ~ "CENARES",
                                     str_detect(ENTIDAD, "REGIONAL") ~ "INSTITUTO/HOSPITAL - GR",
                                     str_detect(ENTIDAD, "HOSPITAL") |
-                                      str_detect(ENTIDAD, "INST") ~ "INSTITUTO/HOSPITAL - GN",
+                                      str_detect(ENTIDAD, "INST") |
+                                      str_detect(ENTIDAD, "REDES INTEGRADAS") |
+                                      str_detect(ENTIDAD, "MINISTERIO DE SALUD") ~ "INSTITUTO/HOSPITAL - GN",
                                     str_detect(ENTIDAD, "SEGURO SOCIAL") ~ "ESSALUD",
-                                    str_detect(ENTIDAD, "POLICÍA") ~ "SANIDAD PNP",
+                                    str_detect(ENTIDAD, "POLICÍA") |
+                                      str_detect(ENTIDAD, "EJERCITO") |
+                                      str_detect(ENTIDAD, "FUERZA AEREA") |
+                                      str_detect(ENTIDAD, "MARINA") ~ "SANIDAD PNP",
                                     TRUE ~ "OTROS"
   ),
   ANO_CONVOCATORIA = format(FECHACONVOCATORIA, "%Y"),
@@ -35,17 +41,19 @@ results <- dt_conv_busq |>
   across(starts_with("PLAZO_HASTA"), 
          ~ case_when(. < 0 ~ 0,
                      TRUE ~ .))
-  )
+  ) |>
+  filter(str_detect(ENTIDAD_COMPRA, "ESSALUD", negate = TRUE))
+
+
+write.table(results, file = here::here("output","export.txt"), sep = "|", row.names = FALSE, )
 
 
 results |>
-  filter(ENTIDAD_COMPRA == "2020" | ENTIDAD_COMPRA == "2021") |>
+  filter(ANO_CONVOCATORIA == 2022) |>
+  filter(ENTIDAD_COMPRA == "OTROS") |>
+  group_by(ENTIDAD) |>
+  summarise(sum = sum(MONTOCONTRATADOITEM)) |>
   View()
-
-
-table(results$DIAS_HASTA_FIN, exclude = NULL)
-write.table(results, file = here::here("output","export.txt"), sep = "|", row.names = FALSE, )
-
 
 
   

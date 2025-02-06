@@ -14,9 +14,10 @@ results <- results |>
                                                      "International Contract",
                                                      "Public Bidding",
                                                      "Electronic Reverse Auction")))
-
+table(results$grupo_oncologico)
 results |>
-  ggplot(aes(x=TIPOPROCESOSELECCION_CAT,y=DIAS_HASTA_CONTRATO, weight = MONTOCONTRATADOITEM)) + 
+  filter(grupo_oncologico != "Resto no oncológico") |>
+  ggplot(aes(x=TIPOPROCESOSELECCION_CAT,y=DIAS_HASTA_CONTRATO)) + 
   geom_boxplot(fill='steelblue') +
   ylab("Days until contract signing") +
   xlab("") +
@@ -42,6 +43,12 @@ results |>
   xlab("") +
   coord_flip()
 
+
+results |>
+  mutate(MONTOCONTRATADOITEM = as.numeric(MONTOCONTRATADOITEM)) |>
+  filter(grupo_oncologico != "Resto no oncológico") |>
+  ggplot(aes(x = MONTOCONTRATADOITEM, y = DIAS_HASTA_CONTRATO)) +
+  geom_point()
 
 
 
