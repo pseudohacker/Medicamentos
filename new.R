@@ -86,39 +86,6 @@ dt_conv_busq <- dt_convocatorias |>
 
 
 
-#onco
-result_2 <- dt_conv_busq |>
-  filter(grupo_oncologico != "Resto no oncológico") |>
-  filter(ULTIMO == "ULTIMO") |>
-  select(CODIGOCONVOCATORIA, ENTIDAD, NITEM, MONTOREFERENCIALITEM, ITEMCUBSO, DESCRIPCIONITEM, TIPOPROCESOSELECCION, TIPOCOMPRA, TIPOENTIDAD, TIPOPROVEEDOR, GRUPO, FECHACONVOCATORIA) |>
-  left_join(dt_contratos |>
-              select(CODIGOCONVOCATORIA, NUMITEM_NUM, MONTOREFERENCIALTOTAL, MONTOCONTRATADOTOTAL, MONTOCONTRATADOITEM, FECHASUSCRIPCIONCONTRATO,FECHAVIGENCIAFINACTUALIZADA), by) |>
-  mutate(ENTIDAD_COMPRA = case_when(str_detect(ENTIDAD, "CENTRO NACIONAL DE ABASTECIMIENTO") ~ "CENARES",
-                                    str_detect(ENTIDAD, "REGIONAL") ~ "INSTITUTO/HOSPITAL - GR",
-                                    str_detect(ENTIDAD, "HOSPITAL") |
-                                      str_detect(ENTIDAD, "INST") ~ "INSTITUTO/HOSPITAL - GN",
-                                    str_detect(ENTIDAD, "SEGURO SOCIAL") ~ "ESSALUD",
-                                    str_detect(ENTIDAD, "POLICÍA") ~ "SANIDAD PNP",
-                                    TRUE ~ "OTROS"
-                                    ))
-
-#antidb
-result_t <- dt_conv_busq |>
-  filter(grupo_diabetes == 1 | grupo_oncologico != "Resto no oncológico") |>
-  filter(ULTIMO == "ULTIMO") |>
-  select(CODIGOCONVOCATORIA, ENTIDAD, NITEM, MONTOREFERENCIALITEM, ITEMCUBSO, DESCRIPCIONITEM, TIPOPROCESOSELECCION, TIPOCOMPRA, TIPOENTIDAD, TIPOPROVEEDOR, GRUPO, FECHACONVOCATORIA) |>
-  left_join(dt_contratos |>
-              select(CODIGOCONVOCATORIA, NUMITEM_NUM, MONTOREFERENCIALTOTAL, MONTOCONTRATADOTOTAL, MONTOCONTRATADOITEM, FECHASUSCRIPCIONCONTRATO,FECHAVIGENCIAFINAL), by) |>
-  mutate(ENTIDAD_COMPRA = case_when(str_detect(ENTIDAD, "CENTRO NACIONAL DE ABASTECIMIENTO") ~ "CENARES",
-                                    str_detect(ENTIDAD, "REGIONAL") ~ "INSTITUTO/HOSPITAL - GR",
-                                    str_detect(ENTIDAD, "HOSPITAL") |
-                                      str_detect(ENTIDAD, "INST") ~ "INSTITUTO/HOSPITAL - GN",
-                                    str_detect(ENTIDAD, "SEGURO SOCIAL") ~ "ESSALUD",
-                                    str_detect(ENTIDAD, "POLICÍA") ~ "SANIDAD PNP",
-                                    TRUE ~ ENTIDAD
-  )) |>
-  View()
-
 
 #table(dt_conv_busq$TIPOCOMPRA) #Compra Corporativa Facultativa  Por encargo a Entidad Pública                 Por la Entidad 
 # table(dt_conv_busq$TIPOPROVEEDOR) #Consorcio       Persona Juridica        Persona Natural Persona No Domiciliada 
