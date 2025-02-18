@@ -15,6 +15,15 @@ results <- results |>
                                                      "Public Bidding",
                                                      "Electronic Reverse Auction")))
 table(results$grupo_oncologico)
+
+results <- results |>
+  mutate(moquegua = case_when(str_detect(ENTIDADCONTRATANTE, "MOQUEGUA") ~ 1,
+                              TRUE ~ 0))
+
+results |>
+  filter(moquegua == 1) |>
+  View()
+
 results |>
   filter(grupo_oncologico != "Resto no oncológico") |>
   ggplot(aes(x=TIPOPROCESOSELECCION_CAT,y=DIAS_HASTA_CONTRATO)) + 
@@ -25,6 +34,7 @@ results |>
 
 results |>
   filter(grupo_diabetes == 1) |>
+  filter(moquegua == 1) |> 
   ggplot(aes(x=TIPOPROCESOSELECCION_CAT,y=DIAS_HASTA_CONTRATO)) + 
   geom_boxplot(fill='steelblue') +
   ylab("Days until contract signing") +

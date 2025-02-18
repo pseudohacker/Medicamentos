@@ -87,34 +87,7 @@ dt_conv_busq <- dt_convocatorias |>
 
 
 
-#table(dt_conv_busq$TIPOCOMPRA) #Compra Corporativa Facultativa  Por encargo a Entidad Pública                 Por la Entidad 
-# table(dt_conv_busq$TIPOPROVEEDOR) #Consorcio       Persona Juridica        Persona Natural Persona No Domiciliada 
 
-
-# str_detect(ITEMCUBSO, "BRAFTOVI") ~ "INHIBIDORBRAF",dt_conv_busq |>
-#   filter(!is.na(med_priorizado)) |>
-#   select(med_priorizado, ITEMCUBSO, MONTOREFERENCIALITEMSOLES) |>
-#     tbl_summary(by = med_priorizado)
-# 
-# ANHO = format(FECHASUSCRIPCIONCONTRATO, "%Y"))
-
-export <- dt_conv_busq |>
-  filter(!is.na(med_priorizado)) |>
-  filter(ULTIMO == "ULTIMO") |>
-  mutate(ANHO = format(FECHABUENAPRO, "%Y")) |>
-  select(med_priorizado, MONTOREFERENCIALITEMSOLES, ANHO, TIPOPROCESOSELECCION, ENTIDAD) |> 
-  write.table(file = "export.txt", sep = "|", row.names = FALSE)  
-
-# dt_conv_busq |>
-#   filter(!is.na(med_priorizado)) |>
-#   mutate(ANHO = format(FECHABUENAPRO, "%Y")) |>
-#   select(med_priorizado, MONTOREFERENCIALITEMSOLES, ANHO, TIPOPROCESOSELECCION, ENTIDAD) |> 
-# tbl_summary(by = ANHO,
-#               statistic = list(all_continuous() ~ "{sum}"),
-#               missing_text = "(Missing)"
-#               ) |>
-#   add_overall(last = T, col_label = "**Total**  \nN = {style_number(N)}")
-#   aggregate(MONTOREFERENCIALITEMSOLES ~ med_priorizado, sum)
 
 
   str_count()
